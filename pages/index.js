@@ -1,8 +1,26 @@
 import Head from "next/head";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.sass";
+import axios from "../api/cart.news";
 
 export default function Home() {
+  const [cart, setCart] = useState([]);
+  useEffect(() => {
+    const getCart = async () => {
+      try {
+        const res = await axios.get(
+          "/kartochkis?sort=publishedAt:DESC&pagination[pageSize]=3&populate=image"
+        );
+        if (!res.data) {
+          throw new Error();
+        }
+        setCart([...res.data.data]);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getCart();
+  }, []);
   return (
     <header className={styles.background}>
       <Head>
@@ -13,72 +31,31 @@ export default function Home() {
       <main className={styles.main__container}>
         <h2 className={styles.main__title}>Check out our latest article</h2>
         <ul className={styles.main__list}>
-          <li className={styles.mainList__item}>
-            <div className={styles.mainListItem__image}>
-              <img src="/images/firstImage.png" alt="firstImage" />
-            </div>
-            <div className={styles.mainListItem__content}>
-              <h4 className={styles.mainListItem__title}>
-                Disease detection, check up in the laboratory
-              </h4>
-              <p className={styles.mainListItem__text}>
-                In this case, the role of the health laboratory is very
-                important to do a disease detection...
-              </p>
-              <button className={styles.mainListItem__btn}>
-                Read more{" "}
-                <img
-                  className={styles.mainListItem__arrow}
-                  src="/images/icons/arrowRight.png"
-                  alt="arrow"
-                />
-              </button>
-            </div>
-          </li>
-          <li className={styles.mainList__item}>
-            <div className={styles.mainListItem__image}>
-              <img src="/images/secondImage.png" alt="secondImage" />
-            </div>
-            <div className={styles.mainListItem__content}>
-              <h4 className={styles.mainListItem__title}>
-                Disease detection, check up in the laboratory
-              </h4>
-              <p className={styles.mainListItem__text}>
-                Herbal medicine is very widely used at this time because of its
-                very good for your health...
-              </p>
-              <button className={styles.mainListItem__btn}>
-                Read more{" "}
-                <img
-                  className={styles.mainListItem__arrow}
-                  src="/images/icons/arrowRight.png"
-                  alt="arrow"
-                />
-              </button>
-            </div>
-          </li>
-          <li className={styles.mainList__item}>
-            <div className={styles.mainListItem__image}>
-              <img src="/images/thirdImage.png" alt="thirdImage" />
-            </div>
-            <div className={styles.mainListItem__content}>
-              <h4 className={styles.mainListItem__title}>
-                Disease detection, check up in the laboratory
-              </h4>
-              <p className={styles.mainListItem__text}>
-                A healthy lifestyle should start from now and also for your skin
-                health. There are some...
-              </p>
-              <button className={styles.mainListItem__btn}>
-                Read more{" "}
-                <img
-                  className={styles.mainListItem__arrow}
-                  src="/images/icons/arrowRight.png"
-                  alt="arrow"
-                />
-              </button>
-            </div>
-          </li>
+          {cart.map(({ image, title, text }, index) => {
+            return (
+              <li key={index} className={styles.mainList__item}>
+                <div className={styles.mainListItem__image}>
+                  <img src={image.url} alt={image.name} />
+                </div>
+                <div className={styles.mainListItem__content}>
+                  <h4 className={styles.mainListItem__title}>
+                    {title}
+                  </h4>
+                  <p className={styles.mainListItem__text}>
+                    {text}
+                  </p>
+                  <button className={styles.mainListItem__btn}>
+                    Read more{" "}
+                    <img
+                      className={styles.mainListItem__arrow}
+                      src="/images/icons/arrowRight.png"
+                      alt="arrow"
+                    />
+                  </button>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       </main>
       <img
